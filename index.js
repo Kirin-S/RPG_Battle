@@ -170,8 +170,6 @@ function play() {
 
   dealDamage(heroMove, monsterMove);                // Нанесение урона
 
-  console.log(counter - hero.moves[heroMove]["step"]);
-
   monster.moves[monsterMove]["step"] = counter;     // Запоминаем ход
   hero.moves[heroMove]["step"] = counter;
 
