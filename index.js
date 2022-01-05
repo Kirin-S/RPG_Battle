@@ -145,6 +145,7 @@ function dealDamage(heroMove, monsterMove) {
 
 }
 
+// Свойство "step" будет хранить номер шага, на котором был сделан скил
 for (let i = 0; i < monster.moves.length; i++) {
   monster.moves[i]["step"] = 0;
 }
@@ -152,33 +153,38 @@ for (let i = 0; i < hero.moves.length; i++) {
   hero.moves[i]["step"] = 0;
 }
 
+let counter = 1;                                    // Номер хода
+
 function play() {
 
-  let monsterMove = getRandomInt(0, 3);       // Получение хода монстра
-  let heroMove = getHeroMove();               // Ход героя
-
-  if (hero.moves[heroMove]["step"] === 0 && monster.moves[monsterMove]["step"] === 0) {
-    dealDamage(heroMove, monsterMove);
-
-    hero.moves[heroMove]["step"]++;
-    monster.moves[monsterMove]["step"]++;
+  let monsterMove = getRandomInt(0, 3);             // Получение хода монстра
+  while (counter - monster.moves[monsterMove]["step"] < monster.moves[monsterMove]["cooldown"]) {
+    monsterMove = getRandomInt(0, 3);
   }
-  else {
-    alert("Способность не перезаряжена!");
-    return;
-  };
 
-  if (hero.moves[heroMove]["step"] > hero.moves[heroMove]["cooldown"]) hero.moves[heroMove]["step"] = 0;
-  if (monster.moves[monsterMove]["step"] > monster.moves[monsterMove]["cooldown"]) monster.moves[monsterMove]["step"] = 0;
+  let heroMove = getHeroMove();                     // Ход героя
+  if (hero.moves[heroMove]["step"] > 0 && counter - hero.moves[heroMove]["step"] < hero.moves[heroMove]["cooldown"]) {
+    alert("Способность перезаряжается!");
+    return undefined;
+  }
+
+  dealDamage(heroMove, monsterMove);                // Нанесение урона
+
+  console.log(counter - hero.moves[heroMove]["step"]);
+
+  monster.moves[monsterMove]["step"] = counter;     // Запоминаем ход
+  hero.moves[heroMove]["step"] = counter;
+
+  counter++;                                        // Увеличиваем номер хода
 
   // ===================================================================================
   // Информационные сообщения
-  let pH = document.createElement("p");
-  let pM = document.createElement("p");
+  let pH        = document.createElement("p");
+  let pM        = document.createElement("p");
   let healthMes = document.createElement("p");
 
-  pH.innerHTML = `Действие игрока: ${hero.moves[heroMove]["name"]}`;
-  pM.innerHTML = `Действие монстра: ${monster.moves[monsterMove]["name"]}`;
+  pH.innerHTML        = `Действие игрока: ${hero.moves[heroMove]["name"]}`;
+  pM.innerHTML        = `Действие монстра: ${monster.moves[monsterMove]["name"]}`;
   healthMes.innerHTML = `Здоровье героя: ${hero.health}, монстра: ${monster.maxHealth}`;
 
   document.body.appendChild(pH);
@@ -189,14 +195,20 @@ function play() {
   // Конец игры
   if (hero.health <= 0 && monster.max <= 0) {
     alert("Оба погибли!");
+    document.getElementById("input").style.display = "none";
+    document.getElementById("submit").style.display = "none";
     return 1;
   }
   else if (hero.health <= 0) {
     alert("Победил Лютый!");
+    document.getElementById("input").style.display = "none";
+    document.getElementById("submit").style.display = "none";
     return 1;
   }
   else if (monster.maxHealth <= 0) {
     alert("Победил Евстафий!");
+    document.getElementById("input").style.display = "none";
+    document.getElementById("submit").style.display = "none";
     return 1;
   }
 
